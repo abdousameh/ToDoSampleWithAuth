@@ -19,17 +19,17 @@ namespace PerToDo
 
 		async void SaveItemButton_Clicked(object sender, System.EventArgs e)
 		{
-			toDoItem.name = nameEntry.Text.Trim();
-			toDoItem.notes = notesEditor.Text.Trim();
-			toDoItem.isDone = doneSwitch.IsToggled;
+			toDoItem.Name = nameEntry.Text.Trim();
+			toDoItem.Notes = notesEditor.Text.Trim();
+			toDoItem.Done = doneSwitch.IsToggled;
 
-			if (toDoItem.id == 0)
-			{ //Add new record
+			if (toDoItem.Id == 0)
+			{
 				await toDoRepo.AddNewToDoItem(toDoItem);
 			}
 			else
 			{
-				await toDoRepo.UpdateToDoItem(toDoItem.id, toDoItem);
+				await toDoRepo.UpdateToDoItem(toDoItem.Id, toDoItem);
 			}
 			await Navigation.PopAsync(true);
 		}

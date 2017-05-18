@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace PerToDo
 {
@@ -7,6 +8,6 @@ namespace PerToDo
 	{
 		Task Register(string phoneNumber);
 
-		Task AuthorizeUser(string phoneNumber, string verificationCode);
+		Task<HttpStatusCode> AuthorizeUser(string phoneNumber, string verificationCode);
 	}
 }

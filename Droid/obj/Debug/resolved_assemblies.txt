@@ -46,6 +46,7 @@
 /Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/System.Runtime.InteropServices.dll
 /Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/Mono.Security.dll
 /Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/System.Diagnostics.Tools.dll
+/Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/System.Net.Primitives.dll
 /Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/Newtonsoft.Json.dll
 /Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/System.Xml.XDocument.dll
 /Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/System.Xml.Linq.dll
@@ -54,4 +55,3 @@
 /Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/System.Text.Encoding.Extensions.dll
 /Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/Microsoft.CSharp.dll
 /Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/Mono.CSharp.dll
-/Users/AmjadH/Projects/PerToDo/Droid/obj/Debug/android/assets/System.Net.Primitives.dll

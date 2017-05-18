@@ -6,11 +6,10 @@
 				<DataTemplate>
 					<ViewCell>
 						<ViewCell.ContextActions>
-							<MenuItem Text="Delete" IsDestructive="True" Clicked="OnTaskDelete" CommandParameter="{Binding id}" />
+							<MenuItem Text="Delete" IsDestructive="True" Clicked="OnTaskDelete" CommandParameter="{Binding Id}" />
 						</ViewCell.ContextActions>
 						<StackLayout Padding="20,0,0,0" HorizontalOptions="StartAndExpand" Orientation="Horizontal">
-							<Label Text="{Binding name}" VerticalTextAlignment="Center" />
-							<Image Source="check.png" IsVisible="{Binding isDone}" />
+							<Label Text="{Binding Name}" VerticalTextAlignment="Center" />
 						</StackLayout>
 					</ViewCell>
 				</DataTemplate>

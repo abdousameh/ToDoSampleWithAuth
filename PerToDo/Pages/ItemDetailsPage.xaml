@@ -4,15 +4,15 @@
 		<StackLayout Orientation="Vertical" VerticalOptions="StartAndExpand" Padding="20,0,20,0">
 			<Label Text="Name">
 			</Label>
-			<Entry x:Name="nameEntry" Keyboard="Default" Text="{Binding Path=name}" Placeholder="task name">
+			<Entry x:Name="nameEntry" Keyboard="Default" Text="{Binding Path=Name}" Placeholder="task name">
 			</Entry>
 			<Label Text="Notes">
 			</Label>
-			<Editor x:Name="notesEditor" HeightRequest="90" Keyboard="Default" Text="{Binding Path=notes}">
+			<Editor x:Name="notesEditor" HeightRequest="90" Keyboard="Default" Text="{Binding Path=Notes}">
 			</Editor>
-			<Label Text="Done:">
+			<Label Text="Done">
 			</Label>
-			<Switch x:Name="doneSwitch" IsToggled="{Binding Path=isDone}">
+			<Switch x:Name="doneSwitch" IsToggled="{Binding Path=Done}">
 			</Switch>
 			<Button Text="Save" x:Name="saveItemButton" VerticalOptions="CenterAndExpand" Clicked="SaveItemButton_Clicked">
 			</Button>

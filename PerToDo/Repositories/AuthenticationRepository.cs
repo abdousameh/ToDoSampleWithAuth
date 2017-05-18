@@ -17,7 +17,7 @@ namespace PerToDo
 			return authenticationService.Register(phoneNumber);
 		}
 
-		public Task AutherizeAccount(string phoneNumber, string verificationCode)
+		public Task<System.Net.HttpStatusCode> AutherizeAccount(string phoneNumber, string verificationCode)
 		{
 			return authenticationService.AuthorizeUser(phoneNumber, verificationCode);
 		}

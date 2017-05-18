@@ -21,3 +21,4 @@
 /Users/AmjadH/Projects/PerToDo/PerToDo/obj/Debug/PerToDo.Pages.ItemDetailsPage.xaml.g.cs
 /Users/AmjadH/Projects/PerToDo/PerToDo/obj/Debug/PerToDo.dll
 /Users/AmjadH/Projects/PerToDo/PerToDo/obj/Debug/PerToDo.pdb
+/Users/AmjadH/Projects/PerToDo/PerToDo/obj/Debug/PerToDo.csprojResolveAssemblyReference.cache

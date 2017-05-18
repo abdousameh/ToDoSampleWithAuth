@@ -1,20 +1,10 @@
 ﻿<Properties StartupConfiguration="{791B9276-45D7-4E5D-BE53-8CDFE5B97197}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="PerToDo/Services/ToDoService.cs">
-    <Files>
-      <File FileName="PerToDo/Pages/MainPage.xaml.cs" Line="54" Column="4" />
-      <File FileName="PerToDo/Services/AuthenticationService.cs" Line="77" Column="1" />
-      <File FileName="PerToDo/Services/ToDoService.cs" Line="37" Column="20" />
-      <File FileName="PerToDo/Pages/ItemDetailsPage.xaml" Line="21" Column="15" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.ItemProperties.PerToDo.Droid PreferredExecutionTarget="Android.My Nexus 4 (Marshmallow)" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/AmjadH/Projects/PerToDo/PerToDo/Pages/MainPage.xaml.cs" relfile="PerToDo/Pages/MainPage.xaml.cs" line="55" column="1" />
-      <Breakpoint file="/Users/AmjadH/Projects/PerToDo/PerToDo/Services/ToDoService.cs" relfile="PerToDo/Services/ToDoService.cs" line="79" column="1" />
-      <Breakpoint file="/Users/AmjadH/Projects/PerToDo/PerToDo/Services/AuthenticationService.cs" relfile="PerToDo/Services/AuthenticationService.cs" line="75" column="1" />
-      <Breakpoint file="/Users/AmjadH/Projects/PerToDo/PerToDo/Services/AuthenticationService.cs" relfile="PerToDo/Services/AuthenticationService.cs" line="80" column="1" />
+      <Breakpoint file="/Users/AmjadH/Projects/PerToDo/PerToDo/Services/AuthenticationService.cs" relfile="PerToDo/Services/AuthenticationService.cs" line="71" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches>
