@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="PerToDo.ItemDetailsPage">
+	<ContentPage.Content>
+		<StackLayout Orientation="Vertical" Padding="20,0,20,0" Spacing="20">
+			<Label Text="Name">
+			</Label>
+			<Entry x:Name="nameEntry" Keyboard="Default" Text="{Binding Path=name}" Placeholder="task name">
+			</Entry>
+			<Label Text="Notes">
+			</Label>
+			<Editor x:Name="notesEditor" HeightRequest="90" Keyboard="Default" Text="{Binding Path=notes}">
+			</Editor>
+			<Label Text="Done:">
+			</Label>
+			<Switch x:Name="doneSwitch" IsToggled="{Binding Path=isDone}">
+			</Switch>
+			<Button Text="Save" x:Name="saveItemButton" VerticalOptions="CenterAndExpand" Clicked="SaveItemButton_Clicked">
+			</Button>
+		</StackLayout>
+	</ContentPage.Content>
+</ContentPage>

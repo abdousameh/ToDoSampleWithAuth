@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="PerToDo.VerificationPage">
+	<ContentPage.Content>
+		<StackLayout Orientation="Vertical" VerticalOptions="CenterAndExpand" Padding="20,0,20,0">
+			<Label Text="Enter verification code">
+			</Label>
+			<Entry Keyboard="Numeric" x:Name="verificationEntry" Placeholder="e.g. 1234">
+			</Entry>
+			<Button x:Name="signInButton" Text="Sign in">
+			</Button>
+			<ActivityIndicator x:Name="pageActivityIndicator">
+			</ActivityIndicator>
+		</StackLayout>
+	</ContentPage.Content>
+</ContentPage>

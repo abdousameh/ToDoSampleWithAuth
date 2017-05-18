@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="PerToDo.SignIn">
+	<ContentPage.Content>
+		<StackLayout Orientation="Vertical" VerticalOptions="CenterAndExpand" Padding="20,0,20,0">
+			<Label HorizontalOptions="Center" HorizontalTextAlignment="Center" Text="Select your country and enter your phone number in order to sign in">
+			</Label>
+			<Picker VerticalOptions="CenterAndExpand" SelectedIndexChanged="CountryPicker_SelectedIndexChanged" x:Name="countryPicker" ItemDisplayBinding="{Binding name}" Title="Select a country...">
+			</Picker>
+			<Entry x:Name="phoneNumberEntry" Keyboard="Telephone" Placeholder="Enter your phone">
+			</Entry>
+			<Button Text="Sign in" x:Name="signInButton">
+			</Button>
+			<ActivityIndicator x:Name="pageActivityIndicator">
+			</ActivityIndicator>
+			<Label HorizontalOptions="Center" HorizontalTextAlignment="Start" Text="You will receive an SMS with verification code.">
+			</Label>
+		</StackLayout>
+	</ContentPage.Content>
+</ContentPage>
