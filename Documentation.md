@@ -400,3 +400,347 @@ namespace ToDo
 ```
 MainPage = new NavigationPage(new SignIn());
 ```
+## Part 4 - Consume operations APIs
+
+1. In the Interfaces folder add new Interface called **IToDoService**
+
+```
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
+
+namespace ToDo
+{
+	public interface IToDoService
+	{
+		Task<List<ToDoItem>> GetToDoList();
+
+		Task<HttpStatusCode> DeleteToDoItem(int itemId);
+
+		Task<Uri> AddNewToDoItem(ToDoItem item);
+
+		Task<ToDoItem> UpdateToDoItem(int id, ToDoItem item);
+	}
+}
+```
+
+2. Add a new model called **ToDoItem**
+
+```
+using System;
+namespace ToDo
+{
+	public class ToDoItem
+	{
+		public int Id { get; set; }
+		public string Name { get; set; }
+		public string Notes { get; set; }
+		public bool Done { get; set; }
+	}
+}
+```
+
+3. in the services folder add ToDoService
+
+```
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Xamarin.Forms;
+
+namespace ToDo
+{
+	public class ToDoService : IToDoService
+	{
+		//I recommend to use 
+		//https://docs.microsoft.com/en-us/aspnet/web-api/overview/advanced/calling-a-web-api-from-a-net-client
+
+		HttpClient client;
+		//IUserDetailsStore storeService;
+		readonly string token;
+		readonly Uri baseUri = new Uri(Constants.BaseURL);
+
+		public ToDoService()
+		{
+			//storeService = DependencyService.Get<IUserDetailsStore>();
+			token = AccountDetailsStore.Instance.Token;
+			client = new HttpClient();
+			client.MaxResponseContentBufferSize = 256000;
+		}
+
+		public async Task<HttpStatusCode> DeleteToDoItem(int id)
+		{
+			var uri = new Uri(baseUri, string.Format("api/todo/{0}", id));
+
+			client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Add("Authorization", string.Format("Bearer {0}", token));
+
+			var response = await client.DeleteAsync(uri);
+
+			return response.StatusCode;
+		}
+
+		public async Task<Uri> AddNewToDoItem(ToDoItem item)
+		{
+			var uri = new Uri(baseUri, "api/todo/");
+
+			client.DefaultRequestHeaders.Clear();
+			client.DefaultRequestHeaders.Add("Authorization", string.Format("Bearer {0}", token));
+
+			var json = JsonConvert.SerializeObject(item);
+			var content = new StringContent(json, Encoding.UTF8, "application/json");
+			var response = await client.PostAsync(uri, content);
+
+			response.EnsureSuccessStatusCode();
+
+			// Return 	the URI of the created resource.
+			return response.Headers.Location;
+		}
+
+		public async Task<ToDoItem> UpdateToDoItem(int id, ToDoItem item)
+		{
+			var uri = new Uri(baseUri, string.Format("api/todo/{0}", id));
+
+			client.DefaultRequestHeaders.Clear();
+			client.DefaultRequestHeaders.Add("Authorization", string.Format("Bearer {0}", token));
+
+			var json = JsonConvert.SerializeObject(item);
+			var content = new StringContent(json, Encoding.UTF8, "application/json");
+			var response = await client.PutAsync(uri, content);
+
+			// Deserialize the updated product from the response body.
+			var responseContent = await response.Content.ReadAsStringAsync();
+			return JsonConvert.DeserializeObject<ToDoItem>(responseContent);
+		}
+
+		public async Task<List<ToDoItem>> GetToDoList()
+		{
+			var uri = new Uri(baseUri, "api/todo/");
+
+			client.DefaultRequestHeaders.Clear();
+			client.DefaultRequestHeaders.Add("Authorization", string.Format("Bearer {0}", token));
+
+			var response = await client.GetAsync(uri);
+
+			if (response.IsSuccessStatusCode)
+			{
+				var content = await response.Content.ReadAsStringAsync();
+				return JsonConvert.DeserializeObject<List<ToDoItem>>(content);
+			}
+			return new List<ToDoItem>();
+		}
+	}
+}
+```
+
+4. Add new Repository file called **ToDoRepository**
+
+```
+using System;
+using System.Net;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
+namespace ToDo
+{
+	public class ToDoRepository
+	{
+		readonly IToDoService todoService;
+
+		public Task<List<ToDoItem>> GetToDoList()
+		{
+			return todoService.GetToDoList();
+		}
+
+		public ToDoRepository(IToDoService todoService)
+		{
+			this.todoService = todoService;
+		}
+
+		public Task<HttpStatusCode> DeleteToDoItem(int itemId)
+		{
+			return todoService.DeleteToDoItem(itemId);
+		}
+
+		public Task<Uri> AddNewToDoItem(ToDoItem item)
+		{
+			return todoService.AddNewToDoItem(item);
+		}
+
+		public Task<ToDoItem> UpdateToDoItem(int id, ToDoItem item)
+		{
+			return todoService.UpdateToDoItem(id, item);
+		}
+	}
+}
+```
+
+## Part 5 - List and details pages
+
+1. Create a new page in the Pages folder called **MainPage**
+
+**XAML**
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="ToDo.MainPage">
+	<ContentPage.Content>
+		<ListView x:Name="todoListView" ItemSelected="todoListView_ItemSelected">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<ViewCell>
+						<ViewCell.ContextActions>
+							<MenuItem Text="Delete" IsDestructive="True" Clicked="OnTaskDelete" CommandParameter="{Binding Id}" />
+						</ViewCell.ContextActions>
+						<StackLayout Padding="20,0,0,0" HorizontalOptions="StartAndExpand" Orientation="Horizontal">
+							<Label Text="{Binding Name}" VerticalTextAlignment="Center" />
+						</StackLayout>
+					</ViewCell>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+			<ListView.Footer>
+				<Button x:Name="AddTaskButton" Text="Add task"></Button>
+			</ListView.Footer>
+		</ListView>
+	</ContentPage.Content>
+</ContentPage>
+```
+**CS**
+```
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xamarin.Forms;
+
+namespace ToDo
+{
+	public partial class MainPage : ContentPage
+	{
+		ToDoRepository todoRepo = new ToDoRepository(new ToDoService());
+
+		public MainPage()
+		{
+			InitializeComponent();
+
+			configurePage();
+		}
+
+		private void configurePage()
+		{
+			Title = "To do list";
+			AddTaskButton.Clicked += AddTaskButton_Clicked;
+			NavigationPage.SetHasBackButton(this, false);
+		}
+
+		protected override void OnAppearing()
+		{
+			base.OnAppearing();
+			var _ = configureTodoList();
+		}
+
+		private async Task configureTodoList()
+		{
+			todoListView.ItemsSource = await todoRepo.GetToDoList();
+		}
+
+		void AddTaskButton_Clicked(object sender, EventArgs e)
+		{
+			Navigation.PushAsync(new ItemDetailsPage(new ToDoItem()));
+		}
+
+		void todoListView_ItemSelected(object sender, Xamarin.Forms.SelectedItemChangedEventArgs e)
+		{
+			var todoItem = e.SelectedItem as ToDoItem;
+            var itemDetailsPage = new ItemDetailsPage(todoItem)
+            {
+                BindingContext = todoItem
+            };
+            Navigation.PushAsync(itemDetailsPage);
+		}
+
+        public async void OnTaskDelete(object sender, EventArgs e)
+		{
+			var menuItem = ((MenuItem)sender);
+            var taskId = (Int32)menuItem.CommandParameter;
+            var isConfirmed = await DisplayAlert("Delete Confirmation", "Are you sure you want to delete this task?" ,"Confirm", "Cancel");
+
+            if (isConfirmed) {
+                await todoRepo.DeleteToDoItem(taskId);
+                await configureTodoList();
+            }
+		}
+	}
+}
+```
+
+2. Create Details page called **ItemDetailsPage**
+
+**XAML**
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="ToDo.ItemDetailsPage">
+	<ContentPage.Content>
+		<StackLayout Orientation="Vertical" VerticalOptions="StartAndExpand" Padding="20,0,20,0">
+			<Label Text="Name">
+			</Label>
+			<Entry x:Name="nameEntry" Keyboard="Default" Text="{Binding Path=Name}" Placeholder="task name">
+			</Entry>
+			<Label Text="Notes">
+			</Label>
+			<Editor x:Name="notesEditor" HeightRequest="90" Keyboard="Default" Text="{Binding Path=Notes}">
+			</Editor>
+			<Label Text="Done">
+			</Label>
+			<Switch x:Name="doneSwitch" IsToggled="{Binding Path=Done}">
+			</Switch>
+			<Button Text="Save" x:Name="saveItemButton" VerticalOptions="CenterAndExpand" Clicked="SaveItemButton_Clicked">
+			</Button>
+		</StackLayout>
+	</ContentPage.Content>
+</ContentPage>
+```
+
+**CS**
+```
+using System;
+using System.Collections.Generic;
+
+using Xamarin.Forms;
+
+namespace ToDo
+{
+	public partial class ItemDetailsPage : ContentPage
+	{
+		ToDoItem toDoItem;
+		ToDoRepository toDoRepo = new ToDoRepository(new ToDoService());
+
+		public ItemDetailsPage(ToDoItem item)
+		{
+			InitializeComponent();
+			this.toDoItem = item;
+			Title = "Details";
+		}
+
+		async void SaveItemButton_Clicked(object sender, System.EventArgs e)
+		{
+			toDoItem.Name = nameEntry.Text.Trim();
+			toDoItem.Notes = notesEditor.Text.Trim();
+			toDoItem.Done = doneSwitch.IsToggled;
+
+			if (toDoItem.Id == 0)
+			{
+				await toDoRepo.AddNewToDoItem(toDoItem);
+			}
+			else
+			{
+				await toDoRepo.UpdateToDoItem(toDoItem.Id, toDoItem);
+			}
+			await Navigation.PopAsync(true);
+		}
+	}
+}
+```
