@@ -182,3 +182,221 @@ namespace ToDo
 	}
 }
 ```
+## Part 3 - Add Sign-in pages
+
+1. Create a new folder called **Pages** and then create your first page **Forms ContentPage Xaml** 
+
+**XAML**
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="ToDo.SignIn">
+	<ContentPage.Content>
+		<StackLayout Orientation="Vertical" VerticalOptions="CenterAndExpand" Padding="20,0,20,0">
+			<Label HorizontalOptions="Center" HorizontalTextAlignment="Center" Text="Select your country and enter your phone number in order to sign in">
+			</Label>
+			<Picker VerticalOptions="CenterAndExpand" SelectedIndexChanged="CountryPicker_SelectedIndexChanged" x:Name="countryPicker" ItemDisplayBinding="{Binding name}" Title="Select a country...">
+			</Picker>
+			<Entry x:Name="phoneNumberEntry" Keyboard="Telephone" Placeholder="Enter your phone">
+			</Entry>
+			<Button Text="Sign in" x:Name="signInButton">
+			</Button>
+			<ActivityIndicator x:Name="pageActivityIndicator">
+			</ActivityIndicator>
+			<Label HorizontalOptions="Center" HorizontalTextAlignment="Start" Text="You will receive an SMS with verification code.">
+			</Label>
+		</StackLayout>
+	</ContentPage.Content>
+</ContentPage>
+
+```
+
+**CS**
+```
+using System;
+using System.Collections.Generic;
+using Xamarin.Forms;
+using Newtonsoft.Json;
+using System.IO;
+using System.Reflection;
+using System.Linq;
+
+namespace ToDo
+{
+	public partial class SignIn : ContentPage
+	{
+		AuthenticationRepository autheticationRepo = new AuthenticationRepository(new AuthenticationService());
+
+		bool isLoading
+		{
+			set
+			{
+				pageActivityIndicator.IsVisible = value;
+				pageActivityIndicator.IsRunning = value;
+				signInButton.IsVisible = !value;
+				this.IsBusy = value;
+			}
+		}
+
+		public SignIn()
+		{
+			InitializeComponent();
+			Title = "Sign in";
+
+			configureCountryPicker();
+			configureSignInButton();
+			pageActivityIndicator.BindingContext = this;
+		}
+
+		private void configureCountryPicker()
+		{
+			countryPicker.ItemsSource = getCountries();
+			countryPicker.SelectedIndexChanged += CountryPicker_SelectedIndexChanged;
+		}
+
+		private void configureSignInButton()
+		{
+			signInButton.Clicked += SignInButton_Clicked;
+		}
+
+		private List<CountryCode> getCountries()
+		{
+			var assembly = typeof(SignIn).GetTypeInfo().Assembly;
+			Stream stream = assembly.GetManifestResourceStream("PerToDo.Data.Countries.json");
+
+			List<CountryCode> countryCodes;
+
+			using (var reader = new System.IO.StreamReader(stream))
+			{
+				var json = reader.ReadToEnd();
+				countryCodes = JsonConvert.DeserializeObject<List<CountryCode>>(json);
+			}
+			return countryCodes;
+		}
+
+		private bool validateForm()
+		{
+			if (countryPicker.SelectedIndex == -1) return false;
+			if (string.IsNullOrWhiteSpace(phoneNumberEntry.Text)) return false;
+			return true;
+		}
+
+		void CountryPicker_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (countryPicker.SelectedIndex == -1) { return; }
+			var selectCountry = (CountryCode)countryPicker.SelectedItem;
+			phoneNumberEntry.Text = selectCountry.dial_code;
+		}
+
+		async void SignInButton_Clicked(object sender, EventArgs e)
+		{
+			if (!validateForm()) { await DisplayAlert("Validation", "Please fill missing field(s)", "Ok"); return; };
+			isLoading = true;
+			var phoneNumber = phoneNumberEntry.Text.Trim();
+			await autheticationRepo.RegisterAccount(phoneNumber);
+			await Navigation.PushAsync(new VerificationPage(phoneNumber));
+			isLoading = false;
+		}
+	}
+}	
+```
+2. Add the country list JSON file and make sure to make it as embedded resource.
+Just create a new folder named **Data** add the json file with **.json** extension
+> This file can be found in this repo
+
+3. Add new folder and name it **Models** inside it just put a poco class named **CountryCode**
+
+```
+using System;
+namespace ToDo
+{
+	public class CountryCode
+	{
+		public string name { get; set; }
+		public string dial_code { get; set; }
+		public string code { get; set; }
+	}
+}
+```
+
+4. Create VerificationPage called **VerificationPage** as follows:
+
+**XAML** 
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="ToDo.VerificationPage">
+	<ContentPage.Content>
+		<StackLayout Orientation="Vertical" VerticalOptions="CenterAndExpand" Padding="20,0,20,0">
+			<Label Text="Enter verification code">
+			</Label>
+			<Entry Keyboard="Numeric" x:Name="verificationEntry" Placeholder="e.g. 1234">
+			</Entry>
+			<Button x:Name="signInButton" Text="Sign in">
+			</Button>
+			<ActivityIndicator x:Name="pageActivityIndicator">
+			</ActivityIndicator>
+		</StackLayout>
+	</ContentPage.Content>
+</ContentPage>
+```
+
+**CS**
+```
+using System;
+using System.Net;
+
+using Xamarin.Forms;
+
+namespace ToDo
+{
+    public partial class VerificationPage : ContentPage
+    {
+        AuthenticationRepository autheticationRepo = new AuthenticationRepository(new AuthenticationService());
+        string phoneNumber;
+
+        bool isLoading
+        {
+            set
+            {
+                pageActivityIndicator.IsVisible = value;
+                pageActivityIndicator.IsRunning = value;
+                signInButton.IsVisible = !value;
+                this.IsBusy = value;
+            }
+        }
+
+        public VerificationPage(string phoneNumber)
+        {
+            InitializeComponent();
+
+            this.phoneNumber = phoneNumber;
+            Title = "Verify yourself";
+            configureSignInButton();
+        }
+
+        private void configureSignInButton()
+        {
+            signInButton.Clicked += SignInButton_Clicked;
+        }
+
+        async void SignInButton_Clicked(object sender, EventArgs e)
+        {
+            var verificationCode = verificationEntry.Text.Trim();
+            isLoading = true;
+            var isSuccess = await autheticationRepo.AutherizeAccount(phoneNumber, verificationCode);
+            if (isSuccess == HttpStatusCode.OK)
+            {
+                await Navigation.PushAsync(new MainPage());
+            }
+            else {
+                await DisplayAlert("Ops...", "Something went wrong, please try again later", "Ok");
+            }
+            isLoading = false;
+        }
+    }
+}
+
+```
+5. In order to start the project we need to set SignIn page as our start page so we go to **App.xaml.cs** and change the line of code to
+```
+MainPage = new NavigationPage(new SignIn());
+```
